@@ -1,0 +1,587 @@
+.coverage-analyzer {
+  width: 100%;
+}
+
+.coverage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.coverage-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #7f8cff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-bottom: 7px;
+}
+
+.coverage-header h2 {
+  margin: 0;
+  font-size: 26px;
+}
+
+.coverage-header p {
+  margin: 7px 0 0;
+  color: #8d94a8;
+  font-size: 14px;
+}
+
+.coverage-actions {
+  display: flex;
+  gap: 9px;
+}
+
+.coverage-refresh,
+.coverage-collect,
+.coverage-clear {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 9px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.coverage-refresh {
+  background: #171a24;
+  color: #e8eaf0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.coverage-collect {
+  background: #6675f5;
+  color: white;
+  border: 1px solid #6675f5;
+}
+
+.coverage-refresh:hover {
+  background: #202431;
+}
+
+.coverage-collect:hover {
+  opacity: 0.9;
+}
+
+.coverage-refresh:disabled,
+.coverage-collect:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.coverage-spinning {
+  animation: coverage-spin 1s linear infinite;
+}
+
+@keyframes coverage-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.coverage-error {
+  margin-bottom: 18px;
+  padding: 13px 15px;
+  border-radius: 9px;
+  color: #ff8585;
+  background: rgba(239, 102, 102, 0.08);
+  border: 1px solid rgba(239, 102, 102, 0.15);
+}
+
+.coverage-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.coverage-summary-card {
+  padding: 17px 18px;
+  background: #151821;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+}
+
+.coverage-summary-card span {
+  display: block;
+  color: #858ca0;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.coverage-summary-card strong {
+  font-size: 23px;
+}
+
+.coverage-map-card,
+.coverage-measurements-card {
+  padding: 20px;
+  background: #151821;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 13px;
+  margin-bottom: 16px;
+}
+
+.coverage-map-header,
+.coverage-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.coverage-map-header h3,
+.coverage-table-header h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.coverage-map-header p,
+.coverage-table-header p {
+  margin: 5px 0 0;
+  color: #858ca0;
+  font-size: 12px;
+}
+
+.coverage-map-header svg {
+  color: #7f8cff;
+}
+
+.coverage-empty {
+  min-height: 230px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #737b90;
+  text-align: center;
+}
+
+.coverage-empty svg {
+  margin-bottom: 12px;
+  opacity: 0.6;
+}
+
+.coverage-empty h3 {
+  margin: 0 0 6px;
+  color: #aeb4c4;
+  font-size: 15px;
+}
+
+.coverage-empty p {
+  margin: 0;
+  font-size: 12px;
+}
+
+.coverage-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  min-height: 220px;
+  padding: 14px;
+  background: #10131a;
+  border-radius: 10px;
+}
+
+.coverage-point {
+  min-height: 115px;
+  padding: 13px;
+  border-radius: 9px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border: 1px solid transparent;
+}
+
+.coverage-point-index {
+  font-size: 10px;
+  color: #737b90;
+  margin-bottom: 7px;
+}
+
+.coverage-point strong {
+  font-size: 18px;
+}
+
+.coverage-point span {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #aeb4c4;
+}
+
+.coverage-point small {
+  margin-top: 7px;
+  color: #737b90;
+  font-size: 10px;
+}
+
+.coverage-point.excellent {
+  background: rgba(70, 211, 154, 0.12);
+  border-color: rgba(70, 211, 154, 0.25);
+  color: #63e6ae;
+}
+
+.coverage-point.good {
+  background: rgba(99, 180, 130, 0.12);
+  border-color: rgba(99, 180, 130, 0.25);
+  color: #8ddf8d;
+}
+
+.coverage-point.warning {
+  background: rgba(233, 185, 73, 0.12);
+  border-color: rgba(233, 185, 73, 0.25);
+  color: #e9b949;
+}
+
+.coverage-point.critical {
+  background: rgba(239, 102, 102, 0.12);
+  border-color: rgba(239, 102, 102, 0.25);
+  color: #ef6666;
+}
+
+.coverage-point.neutral {
+  background: rgba(174, 180, 196, 0.08);
+  color: #aeb4c4;
+}
+
+.coverage-table {
+  overflow-x: auto;
+}
+
+.coverage-table-row {
+  display: grid;
+  grid-template-columns: 45px 1fr 1fr 1fr 1fr 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  color: #aeb4c4;
+  font-size: 12px;
+}
+
+.coverage-table-head {
+  border-top: none;
+  color: #737b90;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.coverage-clear {
+  padding: 7px 10px;
+  color: #ef8585;
+  background: rgba(239, 102, 102, 0.08);
+  border: 1px solid rgba(239, 102, 102, 0.12);
+}
+
+.coverage-clear:hover {
+  background: rgba(239, 102, 102, 0.14);
+}
+
+@media (max-width: 1000px) {
+  .coverage-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .coverage-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 650px) {
+  .coverage-header {
+    flex-direction: column;
+  }
+
+  .coverage-actions {
+    width: 100%;
+  }
+
+  .coverage-refresh,
+  .coverage-collect {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .coverage-summary {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .coverage-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+/* ==========================================
+   SIGNAL-X COVERAGE ACTION BUTTONS
+   ========================================== */
+
+.coverage-action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  height: 38px;
+  padding: 0 14px;
+
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+
+  background: #151821;
+  color: #dfe3ec;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.coverage-action-button svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+.coverage-action-button:hover:not(:disabled) {
+  background: #1c202b;
+  border-color: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+
+.coverage-action-button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.coverage-action-button:focus-visible {
+  outline: none;
+  border-color: rgba(127, 140, 255, 0.55);
+  box-shadow: 0 0 0 3px rgba(127, 140, 255, 0.12);
+}
+
+.coverage-action-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Start Survey */
+.coverage-actions
+  .coverage-action-button:first-child {
+  background: rgba(53, 212, 154, 0.08);
+  border-color: rgba(53, 212, 154, 0.22);
+  color: #63e6ae;
+}
+
+.coverage-actions
+  .coverage-action-button:first-child:hover:not(:disabled) {
+  background: rgba(53, 212, 154, 0.14);
+  border-color: rgba(53, 212, 154, 0.38);
+  box-shadow: 0 0 18px rgba(53, 212, 154, 0.08);
+}
+
+/* Stop Survey */
+.coverage-actions
+  .coverage-action-button:first-child:has(svg + *) {
+  color: #ef8585;
+}
+
+/* Secondary buttons */
+.coverage-actions
+  .coverage-action-button:not(:first-child) {
+  background: #151821;
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #bfc5d4;
+}
+
+.coverage-actions
+  .coverage-action-button:not(:first-child):hover:not(:disabled) {
+  background: #1c202b;
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #f0f2f7;
+}
+
+/* Clear button - last action */
+.coverage-actions
+  .coverage-action-button:last-child {
+  color: #ef8585;
+  border-color: rgba(239, 102, 102, 0.14);
+  background: rgba(239, 102, 102, 0.055);
+}
+
+.coverage-actions
+  .coverage-action-button:last-child:hover:not(:disabled) {
+  background: rgba(239, 102, 102, 0.11);
+  border-color: rgba(239, 102, 102, 0.28);
+  color: #ff9a9a;
+}
+
+/* Responsive action buttons */
+@media (max-width: 650px) {
+  .coverage-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .coverage-action-button {
+    flex: 1;
+    min-width: 120px;
+  }
+}
+
+/* ==========================================
+   SIGNAL-X — COVERAGE ANALYZER MOTION
+   ========================================== */
+
+/* Summary cards */
+.coverage-summary-card {
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.coverage-summary-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(127, 140, 255, 0.16);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+}
+
+/* Map + measurements panels */
+.coverage-map-card,
+.coverage-measurements-card {
+  transition:
+    transform 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.coverage-map-card:hover,
+.coverage-measurements-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(127, 140, 255, 0.14);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+}
+
+/* Coverage grid points */
+.coverage-point {
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.coverage-point:hover {
+  transform: translateY(-4px) scale(1.015);
+  box-shadow: 0 7px 18px rgba(0, 0, 0, 0.16);
+}
+
+/* Measurement table rows */
+.coverage-table-row {
+  transition:
+    background-color 0.16s ease,
+    transform 0.16s ease;
+}
+
+.coverage-table-row:not(.coverage-table-head):hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+/* Coverage action buttons */
+.coverage-action-button {
+  transition:
+    transform 0.18s ease,
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    color 0.18s ease;
+}
+
+.coverage-action-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.coverage-action-button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+/* Empty state */
+.coverage-empty {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .coverage-summary-card,
+  .coverage-map-card,
+  .coverage-measurements-card,
+  .coverage-point,
+  .coverage-table-row,
+  .coverage-action-button,
+  .coverage-empty {
+    transition: none;
+  }
+
+  .coverage-summary-card:hover,
+  .coverage-map-card:hover,
+  .coverage-measurements-card:hover,
+  .coverage-point:hover,
+  .coverage-action-button:hover:not(:disabled) {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+/* ==========================================
+   SIGNAL-X — COVERAGE MAP MOTION
+   ========================================== */
+
+.coverage-map-marker {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: signalx-map-marker-enter 0.45s
+    cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes signalx-map-marker-enter {
+  0% {
+    opacity: 0;
+    transform: scale(0.25);
+  }
+
+  65% {
+    opacity: 0.85;
+    transform: scale(1.12);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .coverage-map-marker {
+    animation: none;
+  }
+}

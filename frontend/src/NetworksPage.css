@@ -1,0 +1,638 @@
+.networks-page {
+  width: 100%;
+}
+
+.networks-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.networks-header h2 {
+  margin: 7px 0 5px;
+  font-size: 27px;
+  letter-spacing: -0.8px;
+}
+
+.networks-header p {
+  margin: 0;
+  color: #687386;
+  font-size: 13px;
+}
+
+.page-eyebrow {
+  color: #687fa6;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.1px;
+}
+
+.scan-button,
+.empty-scan-button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  padding: 11px 16px;
+
+  border: 1px solid rgba(100, 148, 255, 0.25);
+  border-radius: 10px;
+
+  color: #dce7ff;
+  background: rgba(70, 120, 255, 0.12);
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.scan-button:hover,
+.empty-scan-button:hover {
+  background: rgba(70, 120, 255, 0.2);
+}
+
+.scan-button:disabled,
+.empty-scan-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.scan-spinning {
+  animation: scan-spin 1s linear infinite;
+}
+
+@keyframes scan-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* SUMMARY */
+
+.network-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 13px;
+}
+
+.summary-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 16px;
+
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 14px;
+
+  background: rgba(14,19,29,.84);
+}
+
+.summary-icon {
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  color: #76a0ff;
+  background: rgba(72,126,255,.1);
+}
+
+.summary-card span {
+  display: block;
+  color: #657084;
+  font-size: 10px;
+  margin-bottom: 4px;
+}
+
+.summary-card strong {
+  font-size: 15px;
+}
+
+/* SEARCH */
+
+.network-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin: 16px 0 12px;
+}
+
+.search-box {
+  width: 360px;
+
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  padding: 11px 13px;
+
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 10px;
+
+  background: rgba(14,19,29,.84);
+
+  color: #667286;
+}
+
+.search-box input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+
+  background: transparent;
+  color: #dce5f3;
+
+  font-size: 12px;
+}
+
+.search-box input::placeholder {
+  color: #505b6d;
+}
+
+.scan-info {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  color: #5d687b;
+  font-size: 10px;
+}
+
+.scan-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+
+  background: #45d694;
+  box-shadow: 0 0 9px rgba(69,214,148,.7);
+}
+
+/* ERROR */
+
+.scan-error {
+  display: flex;
+  gap: 10px;
+
+  margin-bottom: 12px;
+  padding: 13px 15px;
+
+  border: 1px solid rgba(239,96,112,.2);
+  border-radius: 10px;
+
+  background: rgba(239,96,112,.06);
+  color: #f17c89;
+}
+
+.scan-error strong,
+.scan-error span {
+  display: block;
+}
+
+.scan-error strong {
+  font-size: 12px;
+}
+
+.scan-error span {
+  margin-top: 3px;
+  color: #8c6670;
+  font-size: 11px;
+}
+
+/* TABLE */
+
+.network-table-card {
+  overflow: hidden;
+
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 16px;
+
+  background: rgba(14,19,29,.84);
+}
+
+.table-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 21px 22px;
+
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+.table-heading h3 {
+  margin: 6px 0 0;
+  font-size: 16px;
+}
+
+.network-count {
+  padding: 6px 9px;
+
+  border-radius: 7px;
+
+  color: #7589ad;
+  background: rgba(78,119,193,.08);
+
+  font-size: 10px;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+}
+
+th {
+  padding: 13px 20px;
+
+  color: #5f6b7e;
+
+  font-size: 9px;
+  font-weight: 700;
+
+  letter-spacing: .8px;
+  text-transform: uppercase;
+
+  text-align: left;
+
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+
+td {
+  padding: 15px 20px;
+
+  border-bottom: 1px solid rgba(255,255,255,.045);
+
+  font-size: 11px;
+}
+
+tbody tr:hover {
+  background: rgba(255,255,255,.025);
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.sort-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 0;
+
+  border: 0;
+  background: transparent;
+
+  color: inherit;
+  font: inherit;
+
+  cursor: pointer;
+}
+
+/* NETWORK */
+
+.network-name {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.network-icon {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 9px;
+
+  color: #709bff;
+  background: rgba(73,126,255,.09);
+}
+
+.network-name strong {
+  display: block;
+
+  max-width: 190px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  color: #d8e0ec;
+  font-size: 12px;
+}
+
+.network-name small {
+  display: block;
+  margin-top: 3px;
+
+  color: #4e596b;
+  font-size: 9px;
+}
+
+/* SIGNAL */
+
+.signal-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.signal-bar {
+  width: 54px;
+  height: 5px;
+
+  overflow: hidden;
+  border-radius: 10px;
+
+  background: #252c38;
+}
+
+.signal-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.signal-bar span.excellent,
+.signal-bar span.good {
+  background: #4fd493;
+}
+
+.signal-bar span.fair {
+  background: #e7c15d;
+}
+
+.signal-bar span.weak {
+  background: #e49a56;
+}
+
+.signal-bar span.very-weak {
+  background: #e3616d;
+}
+
+.signal-bar span.neutral {
+  background: #687386;
+}
+
+.signal-cell strong {
+  display: block;
+  color: #d8e0ec;
+  font-size: 11px;
+}
+
+.signal-cell small {
+  display: block;
+  margin-top: 2px;
+  color: #596477;
+  font-size: 9px;
+}
+
+/* VALUES */
+
+.band-badge {
+  display: inline-block;
+
+  padding: 5px 8px;
+
+  border-radius: 6px;
+
+  color: #8fa9d9;
+  background: rgba(75,122,210,.09);
+
+  font-size: 9px;
+}
+
+.channel-value {
+  color: #cbd5e3;
+  font-weight: 600;
+}
+
+.security-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  color: #7b8ba3;
+}
+
+.security-cell svg {
+  color: #4fd493;
+}
+
+.radio-value {
+  color: #7b879a;
+  font-size: 10px;
+}
+
+/* EMPTY */
+
+.network-empty {
+  min-height: 380px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 30px;
+
+  color: #4f5b6e;
+  text-align: center;
+}
+
+.network-empty svg {
+  color: #526987;
+}
+
+.network-empty h3 {
+  margin: 14px 0 6px;
+
+  color: #8995a8;
+  font-size: 15px;
+}
+
+.network-empty p {
+  max-width: 400px;
+
+  margin: 0 0 18px;
+
+  color: #596578;
+
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+/* FOOTER */
+
+.network-footer {
+  display: flex;
+  justify-content: space-between;
+
+  margin-top: 12px;
+
+  color: #4f5b6d;
+  font-size: 9px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1000px) {
+  .network-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 650px) {
+  .networks-header {
+    flex-direction: column;
+  }
+
+  .network-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+
+  .network-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .network-footer {
+    flex-direction: column;
+    gap: 7px;
+  }
+}
+
+/* ==========================================
+   SIGNAL-X — NETWORKS MOTION
+   ========================================== */
+
+/* Summary cards */
+.summary-card {
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(100, 148, 255, 0.14);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+}
+
+/* Main network table */
+.network-table-card {
+  transition:
+    transform 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.network-table-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(100, 148, 255, 0.12);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+}
+
+/* Search box */
+.search-box {
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.search-box:focus-within {
+  border-color: rgba(100, 148, 255, 0.28);
+  box-shadow: 0 0 0 3px rgba(70, 120, 255, 0.06);
+}
+
+/* Network table rows */
+tbody tr {
+  transition:
+    background-color 0.16s ease,
+    transform 0.16s ease;
+}
+
+tbody tr:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+/* Small icon response */
+.summary-card:hover .summary-icon,
+.network-name:hover .network-icon {
+  transform: scale(1.04);
+}
+
+.summary-icon,
+.network-icon {
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease;
+}
+
+/* Scan button */
+.scan-button,
+.empty-scan-button {
+  transition:
+    transform 0.18s ease,
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.scan-button:hover:not(:disabled),
+.empty-scan-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(70, 120, 255, 0.10);
+}
+
+.scan-button:active:not(:disabled),
+.empty-scan-button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .summary-card,
+  .network-table-card,
+  .search-box,
+  .scan-button,
+  .empty-scan-button,
+  .summary-icon,
+  .network-icon {
+    transition: none;
+  }
+
+  .summary-card:hover,
+  .network-table-card:hover,
+  .scan-button:hover:not(:disabled),
+  .empty-scan-button:hover:not(:disabled) {
+    transform: none;
+    box-shadow: none;
+  }
+}
