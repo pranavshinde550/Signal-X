@@ -1,0 +1,45 @@
+{
+  "name": "signal-x-desktop",
+  "version": "1.0.0",
+  "description": "Signal-X Real-Time Wi-Fi Signal Strength Analyzer",
+  "main": "main.cjs",
+  "author": "Signal-X",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^44.4.5",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.signalx.desktop",
+    "productName": "Signal-X",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "main.cjs"
+    ],
+    "extraResources": [
+      {
+        "from": "../frontend/dist",
+        "to": "frontend/dist"
+      },
+      {
+        "from": "../backend/dist/SignalXBackend",
+        "to": "backend/SignalXBackend"
+      }
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}
