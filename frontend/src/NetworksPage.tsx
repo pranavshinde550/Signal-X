@@ -11,6 +11,9 @@ import {
   AlertCircle,
 } from "lucide-react";
 
+import { Capacitor } from "@capacitor/core";
+import { WifiInfo } from "./nativeWifi";
+
 import "./NetworksPage.css";
 import { SIGNALX_API_BASE } from "./signalxConfig";
 
@@ -57,12 +60,60 @@ export default function NetworksPage() {
       setScanning(true);
       setError(null);
 
+      /*
+       * ANDROID
+       *
+       * Android cannot use the Windows FastAPI Wi-Fi scanner.
+       * The scan must go through the native WifiInfo Capacitor plugin.
+       */
+      if (Capacitor.getPlatform() === "android") {
+        const data = await WifiInfo.scanNetworks();
+
+        if (!data.success) {
+          throw new Error(
+            data.error || "Wi-Fi scan failed."
+          );
+        }
+
+        const androidNetworks: Network[] =
+          (data.networks || []).map((network) => ({
+            ssid: network.ssid ?? null,
+            bssid: network.bssid ?? null,
+            signal_percent:
+              network.signal_percent ?? null,
+            rssi_dbm:
+              network.rssi_dbm ?? null,
+            radio_type:
+              network.radio_type ?? null,
+            channel:
+              network.channel ?? null,
+            band:
+              network.band ?? null,
+            authentication:
+              network.authentication ?? null,
+            cipher:
+              network.cipher ?? null,
+          }));
+
+        setNetworks(androidNetworks);
+        setLastScan(new Date());
+
+        return;
+      }
+
+      /*
+       * WINDOWS / ELECTRON
+       *
+       * Preserve the existing backend scanner.
+       */
       const response = await fetch(
         `${SIGNALX_API_BASE}/api/wifi/networks`
       );
 
       if (!response.ok) {
-        throw new Error("Network scan request failed.");
+        throw new Error(
+          "Network scan request failed."
+        );
       }
 
       const data: NetworkScanResponse =

@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import CoverageMap from "./CoverageMap";
 import "./CoverageAnalyzer.css";
+import { Capacitor } from "@capacitor/core";
+import { WifiInfo } from "./nativeWifi";
 import { SIGNALX_API_BASE } from "./signalxConfig";
 
 type Measurement = {
@@ -46,6 +48,9 @@ type WifiCurrentResponse = {
   error?: string | null;
 };
 
+const ANDROID_COVERAGE_STORAGE_KEY =
+  "signalx_coverage_measurements";
+
 function CoverageAnalyzer() {
   const [measurements, setMeasurements] = useState<Measurement[]>([]);
   const [loading, setLoading] = useState(false);
@@ -61,8 +66,10 @@ function CoverageAnalyzer() {
     longitude: number;
   } | null>(null);
 
+  const API_BASE = SIGNALX_API_BASE;
+  const isAndroid = Capacitor.getPlatform() === "android";
+
   const MIN_SURVEY_DISTANCE_METERS = 3;
-  const MAX_SURVEY_ACCURACY_METERS = 20;
 
   const calculateDistanceMeters = (
     lat1: number,
@@ -101,8 +108,39 @@ function CoverageAnalyzer() {
 
   const loadMeasurements = async () => {
     try {
+      if (isAndroid) {
+        const stored =
+          window.localStorage.getItem(
+            ANDROID_COVERAGE_STORAGE_KEY
+          );
+
+        if (!stored) {
+          setMeasurements([]);
+          return;
+        }
+
+        try {
+          const parsed = JSON.parse(stored);
+
+          if (Array.isArray(parsed)) {
+            setMeasurements(parsed);
+          } else {
+            setMeasurements([]);
+          }
+        } catch (error) {
+          console.error(
+            "Failed to parse Android coverage measurements:",
+            error
+          );
+
+          setMeasurements([]);
+        }
+
+        return;
+      }
+
       const response = await fetch(
-        `${SIGNALX_API_BASE}/api/wifi/coverage`
+        `${API_BASE}/api/wifi/coverage`
       );
 
       if (!response.ok) {
@@ -143,61 +181,88 @@ function CoverageAnalyzer() {
     }
 
     try {
-      if (!navigator.geolocation) {
-        throw new Error(
-          "Geolocation is not supported by this browser."
-        );
+      let latitude: number;
+      let longitude: number;
+      let accuracy: number;
+
+      if (isAndroid) {
+        /*
+         * Android uses the native location bridge instead of
+         * navigator.geolocation. This avoids WebView fetch/location
+         * failures and works with Android's approximate-location mode.
+         */
+        const nativeLocation =
+          await WifiInfo.getCurrentLocation();
+
+        latitude = nativeLocation.latitude;
+        longitude = nativeLocation.longitude;
+        accuracy = nativeLocation.accuracy_m;
+      } else {
+        if (!navigator.geolocation) {
+          throw new Error(
+            "Geolocation is not supported by this browser."
+          );
+        }
+
+        const position =
+          await new Promise<GeolocationPosition>(
+            (resolve, reject) => {
+              navigator.geolocation.getCurrentPosition(
+                resolve,
+                reject,
+                {
+                  enableHighAccuracy: true,
+                  timeout: 10000,
+                  maximumAge: 0,
+                }
+              );
+            }
+          );
+
+        latitude = position.coords.latitude;
+        longitude = position.coords.longitude;
+        accuracy = position.coords.accuracy;
       }
 
-      const position =
-        await new Promise<GeolocationPosition>(
-          (resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(
-              resolve,
-              reject,
-              {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 0,
-              }
-            );
-          }
+      let wifi: WifiCurrentResponse;
+
+      if (isAndroid) {
+        const nativeWifi =
+          await WifiInfo.getCurrentWifi();
+
+        wifi = {
+          connected: nativeWifi.connected,
+          ssid: nativeWifi.ssid ?? null,
+          bssid: nativeWifi.bssid ?? null,
+          signal_percent:
+            nativeWifi.signal_percent ?? null,
+          rssi_dbm:
+            nativeWifi.rssi_dbm ?? null,
+          channel:
+            nativeWifi.channel ?? null,
+          band:
+            nativeWifi.band ?? null,
+          receive_rate_mbps:
+            nativeWifi.receive_rate_mbps ?? null,
+          transmit_rate_mbps:
+            nativeWifi.transmit_rate_mbps ?? null,
+          error:
+            nativeWifi.message ?? null,
+        };
+      } else {
+        const wifiResponse = await fetch(
+          `${API_BASE}/api/wifi/current`
         );
 
-      const latitude =
-        position.coords.latitude;
+        if (!wifiResponse.ok) {
+          throw new Error(
+            `Wi-Fi request failed: ${wifiResponse.status}`
+          );
+        }
 
-      const longitude =
-        position.coords.longitude;
-
-      const accuracy =
-        position.coords.accuracy;
-
-      if (
-        fromSurvey &&
-        accuracy > MAX_SURVEY_ACCURACY_METERS
-      ) {
-        setSurveyStatus(
-          `GPS accuracy too low • ${accuracy.toFixed(
-            1
-          )} m / maximum ${MAX_SURVEY_ACCURACY_METERS} m`
-        );
-
-        return;
+        wifi =
+          await wifiResponse.json();
       }
-
-      const wifiResponse = await fetch(
-        `${SIGNALX_API_BASE}/api/wifi/current`
-      );
-
-      if (!wifiResponse.ok) {
-        throw new Error(
-          `Wi-Fi request failed: ${wifiResponse.status}`
-        );
-      }
-
-      const wifi: WifiCurrentResponse =
-        await wifiResponse.json();
 
       if (!wifi.connected) {
         throw new Error(
@@ -259,31 +324,66 @@ function CoverageAnalyzer() {
         accuracy_m: accuracy,
       };
 
-      const saveResponse = await fetch(
-        `${SIGNALX_API_BASE}/api/wifi/coverage/point`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(measurement),
+      if (isAndroid) {
+        const existing =
+          window.localStorage.getItem(
+            ANDROID_COVERAGE_STORAGE_KEY
+          );
+
+        let storedMeasurements: Measurement[] = [];
+
+        if (existing) {
+          try {
+            const parsed = JSON.parse(existing);
+
+            if (Array.isArray(parsed)) {
+              storedMeasurements = parsed;
+            }
+          } catch {
+            storedMeasurements = [];
+          }
         }
-      );
 
-      if (!saveResponse.ok) {
-        throw new Error(
-          `Save request failed: ${saveResponse.status}`
+        const updatedMeasurements = [
+          ...storedMeasurements,
+          measurement,
+        ].slice(-500);
+
+        window.localStorage.setItem(
+          ANDROID_COVERAGE_STORAGE_KEY,
+          JSON.stringify(updatedMeasurements)
         );
-      }
 
-      const savedData =
-        await saveResponse.json();
-
-      if (!savedData.success) {
-        throw new Error(
-          savedData.error ||
-            "Failed to save coverage measurement."
+        setMeasurements(updatedMeasurements);
+      } else {
+        const saveResponse = await fetch(
+          `${API_BASE}/api/wifi/coverage/point`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(measurement),
+          }
         );
+
+        if (!saveResponse.ok) {
+          throw new Error(
+            `Save request failed: ${saveResponse.status}`
+          );
+        }
+
+        const savedData =
+          await saveResponse.json();
+
+        if (!savedData.success) {
+          throw new Error(
+            savedData.error ||
+              "Failed to save coverage measurement."
+          );
+        }
+
+        await loadMeasurements();
       }
 
       if (fromSurvey) {
@@ -292,8 +392,6 @@ function CoverageAnalyzer() {
           longitude,
         };
       }
-
-      await loadMeasurements();
 
       if (fromSurvey) {
         setSurveyStatus(
@@ -324,7 +422,9 @@ function CoverageAnalyzer() {
         alert(
           error instanceof Error
             ? error.message
-            : "Failed to collect coverage point."
+            : typeof error === "string"
+              ? error
+              : "Failed to collect coverage point."
         );
       }
     } finally {
@@ -384,8 +484,22 @@ function CoverageAnalyzer() {
     }
 
     try {
+      if (isAndroid) {
+        window.localStorage.removeItem(
+          ANDROID_COVERAGE_STORAGE_KEY
+        );
+
+        setMeasurements([]);
+
+        setSurveyStatus(
+          "All measurements cleared"
+        );
+
+        return;
+      }
+
       const response = await fetch(
-        `${SIGNALX_API_BASE}/api/wifi/coverage`,
+        `${API_BASE}/api/wifi/coverage`,
         {
           method: "DELETE",
         }

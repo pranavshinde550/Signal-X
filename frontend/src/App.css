@@ -722,422 +722,638 @@ button {
 .chart-placeholder canvas {
   outline: none;
 }
-/* Keep the original layout and give the live chart a fixed drawing area. */
-.signal-chart { height: 290px; width: 100%; min-width: 0; margin-top: 16px; }
-.signal-chart > div { width: 100% !important; height: 100% !important; }
-.chart-placeholder .card-header h3, .info-card .card-header h3 { margin: 7px 0 0; font-size: 17px; }
-.module-placeholder { min-height: 240px; }
-.module-placeholder p { color: #8994a6; line-height: 1.6; }
-@media (max-width: 800px) { .navigation .nav-item span { display: none; } .brand h1, .brand span { display: none; } }
+/* Match the reference screenshot: fixed sidebar and correctly sized chart. */
+.sidebar { z-index: 10; }
+.main { min-width: 0; }
+.sidebar-bottom > .nav-item { margin-bottom: 12px; }
+.card-header h3 { margin: 7px 0 0; font-size: 17px; }
+.signal-chart { width: 100%; height: 290px; min-width: 0; margin-top: 14px; }
+.signal-chart > div { width: 100%; }
+.module-placeholder { margin-top: 16px; }
+.module-placeholder p { color: #778296; font-size: 13px; }
+@media (max-width: 800px) {
+  .navigation .nav-item span, .sidebar-bottom > .nav-item span { display: none; }
+  .sidebar-bottom > .nav-item { justify-content: center; }
+}
 
-/* ==========================================
-   SIGNAL-X — GLOBAL MOTION LAYER 1
-   Subtle UI motion
-   ========================================== */
+/* =========================================================
+   SIGNAL-X MOBILE UI — PHASE 1
+   Mobile shell only. Desktop layout remains unchanged.
+========================================================= */
 
-@keyframes signalx-page-enter {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
+.mobile-bottom-nav {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .sidebar {
+    display: none;
   }
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Main content enters smoothly when the active view changes */
-.main-content {
-  animation: signalx-page-enter 0.22s ease-out;
-}
-
-/* General interactive transition */
-button,
-.nav-item,
-.icon-button {
-  transition:
-    background-color 0.18s ease,
-    border-color 0.18s ease,
-    color 0.18s ease,
-    box-shadow 0.18s ease,
-    transform 0.18s ease,
-    opacity 0.18s ease;
-}
-
-/* Small physical response when pressing buttons */
-button:active:not(:disabled) {
-  transform: translateY(1px);
-}
-
-/* Subtle hover lift for existing cards */
-.metric-card,
-.info-card,
-.connection-card,
-.health-card {
-  transition:
-    transform 0.2s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.metric-card:hover,
-.info-card:hover,
-.connection-card:hover,
-.health-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
-}
-
-/* Don't animate disabled controls */
-button:disabled {
-  transition: none;
-}
-
-/* Accessibility:
-   users who prefer reduced motion get no animation */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-/* ==========================================
-   SIGNAL-X — MOTION LAYER 2
-   Metric card motion
-   ========================================== */
-
-.metric-card {
-  position: relative;
-  overflow: hidden;
-}
-
-/* Very subtle light sweep on hover */
-.metric-card::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -120%;
-  width: 70%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.035),
-    transparent
-  );
-  transform: skewX(-18deg);
-  pointer-events: none;
-}
-
-.metric-card:hover::after {
-  animation: signalx-card-sweep 0.55s ease-out;
-}
-
-@keyframes signalx-card-sweep {
-  from {
-    left: -120%;
+  .main {
+    margin-left: 0;
+    width: 100%;
+    min-height: 100vh;
+    padding: 14px 14px 92px;
   }
 
-  to {
-    left: 150%;
-  }
-}
-
-/* Keep metric values visually stable */
-.metric-card h3,
-.metric-card .metric-value,
-.metric-card strong {
-  transition: opacity 0.2s ease;
-}
-
-/* Reduced-motion support */
-@media (prefers-reduced-motion: reduce) {
-  .metric-card:hover::after {
-    animation: none;
-  }
-}
-
-/* ==========================================
-   SIGNAL-X — GLOBAL CARD MOTION
-   Applies subtle motion across analyzer pages
-   ========================================== */
-
-/* Common cards used across Signal-X */
-.network-card,
-.channel-card,
-.performance-card,
-.coverage-card,
-.analyzer-card,
-.stat-card,
-.chart-card,
-.panel,
-.card {
-  transition:
-    transform 0.22s ease,
-    border-color 0.22s ease,
-    box-shadow 0.22s ease;
-}
-
-.network-card:hover,
-.channel-card:hover,
-.performance-card:hover,
-.coverage-card:hover,
-.analyzer-card:hover,
-.stat-card:hover,
-.chart-card:hover,
-.panel:hover,
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
-}
-
-/* Smooth interaction for analyzer action buttons */
-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-
-button:active:not(:disabled) {
-  transform: translateY(1px);
-}
-
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .network-card,
-  .channel-card,
-  .performance-card,
-  .coverage-card,
-  .analyzer-card,
-  .stat-card,
-  .chart-card,
-  .panel,
-  .card {
-    transition: none;
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    margin: -14px -14px 14px;
+    padding: 14px;
+    background: rgba(10, 14, 21, 0.94);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
   }
 
-  .network-card:hover,
-  .channel-card:hover,
-  .performance-card:hover,
-  .coverage-card:hover,
-  .analyzer-card:hover,
-  .stat-card:hover,
-  .chart-card:hover,
-  .panel:hover,
-  .card:hover {
-    transform: none;
-    box-shadow: none;
-  }
-}
-
-/* ==========================================
-   SIGNAL-X — LIVE RSSI MOTION
-   ========================================== */
-
-.rssi-live-value {
-  display: inline-block;
-  will-change: transform, opacity;
-  transition:
-    color 0.2s ease,
-    text-shadow 0.25s ease;
-}
-
-.connection-card:hover .rssi-live-value {
-  text-shadow: 0 0 18px rgba(119, 165, 255, 0.10);
-}
-
-/* Respect reduced-motion preference */
-@media (prefers-reduced-motion: reduce) {
-  .rssi-live-value {
-    transition: none;
-  }
-}
-
-/* ==========================================
-   SIGNAL-X — LIVE MONITORING MOTION
-   ========================================== */
-
-.live-indicator {
-  transition:
-    color 0.25s ease,
-    background-color 0.25s ease,
-    border-color 0.25s ease,
-    box-shadow 0.25s ease;
-}
-
-/* Indicator dot */
-.live-indicator > span {
-  position: relative;
-  display: inline-block;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #4bda96;
-  box-shadow: 0 0 8px rgba(75, 218, 150, 0.55);
-}
-
-/* Outer pulse ring */
-.live-indicator > span::after {
-  content: "";
-  position: absolute;
-  inset: -4px;
-  border: 1px solid rgba(75, 218, 150, 0.35);
-  border-radius: 50%;
-  animation: signalx-live-pulse 1.8s ease-out infinite;
-}
-
-/* Connected state */
-.live-indicator {
-  animation: signalx-live-breathe 2.4s ease-in-out infinite;
-}
-
-@keyframes signalx-live-pulse {
-  0% {
-    transform: scale(0.7);
-    opacity: 0.75;
+  .topbar h2 {
+    font-size: 20px;
+    line-height: 1.15;
   }
 
-  70% {
-    transform: scale(1.5);
-    opacity: 0;
+  .topbar p {
+    max-width: 220px;
+    font-size: 11px;
   }
 
-  100% {
-    transform: scale(1.5);
-    opacity: 0;
-  }
-}
-
-@keyframes signalx-live-breathe {
-  0%,
-  100% {
-    opacity: 1;
+  .topbar-actions {
+    gap: 8px;
   }
 
-  50% {
-    opacity: 0.82;
-  }
-}
-
-/* ==========================================
-   Reduced Motion
-   ========================================== */
-
-@media (prefers-reduced-motion: reduce) {
   .live-indicator {
-    animation: none;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
   }
 
-  .live-indicator > span::after {
-    animation: none;
+  .icon-button {
+    width: 34px;
+    height: 34px;
+  }
+
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .connection-card,
+  .health-card,
+  .metric-card,
+  .chart-placeholder,
+  .info-card {
+    border-radius: 16px;
+  }
+
+  .connection-card,
+  .health-card {
+    padding: 16px;
+  }
+
+  .card-header h3 {
+    font-size: 16px;
+  }
+
+  .signal-main {
+    margin-top: 18px;
+  }
+
+  .rssi {
+    font-size: clamp(52px, 17vw, 76px);
+  }
+
+  .connection-details {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .connection-details > div {
+    min-width: 0;
+  }
+
+  .connection-details strong {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .health-score {
+    gap: 14px;
+  }
+
+  .health-ring {
+    flex: 0 0 auto;
+  }
+
+  .health-info p {
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .metric-card {
+    min-width: 0;
+    padding: 13px;
+    gap: 10px;
+  }
+
+  .metric-card span {
+    font-size: 10px;
+  }
+
+  .metric-card strong {
+    display: block;
+    margin-top: 4px;
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .metric-icon {
+    flex: 0 0 auto;
+  }
+
+  .chart-placeholder,
+  .info-card {
+    padding: 14px;
+  }
+
+  .chart-status {
+    font-size: 9px;
+  }
+
+  .signal-chart {
+    height: 230px;
+  }
+
+  .bottom-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .details-list {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .details-list > div {
+    padding: 11px 0;
+  }
+
+  .details-list strong {
+    max-width: 62%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobile-bottom-nav {
+    position: fixed;
+    left: 10px;
+    right: 10px;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    z-index: 100;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    padding: 7px;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 18px;
+    background: rgba(14, 19, 29, 0.96);
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.38);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  .mobile-nav-item {
+    min-width: 0;
+    min-height: 52px;
+    border: 0;
+    border-radius: 13px;
+    background: transparent;
+    color: #7f8a9d;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font: inherit;
+    cursor: pointer;
+    transition:
+      color 180ms ease,
+      background 180ms ease,
+      transform 180ms ease;
+  }
+
+  .mobile-nav-item span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 9px;
+    line-height: 1;
+  }
+
+  .mobile-nav-item.active {
+    color: #77a5ff;
+    background: rgba(119, 165, 255, 0.10);
+  }
+
+  .mobile-nav-item:active {
+    transform: scale(0.95);
   }
 }
 
-/* ==========================================
-   SIGNAL-X — LIVE MEASUREMENT FEEDBACK
-   ========================================== */
-
-.connection-card {
-  transition:
-    transform 0.22s ease,
-    border-color 0.22s ease,
-    box-shadow 0.22s ease;
-}
-
-.connection-card.measurement-pulse {
-  animation: signalx-measurement-pulse 0.35s ease-out;
-}
-
-@keyframes signalx-measurement-pulse {
-  0% {
-    transform: translateY(-2px);
-    box-shadow:
-      0 0 0 rgba(119, 165, 255, 0),
-      0 10px 28px rgba(0, 0, 0, 0.16);
+@media (max-width: 380px) {
+  .main {
+    padding-left: 11px;
+    padding-right: 11px;
   }
 
-  45% {
-    transform: translateY(-4px);
-    box-shadow:
-      0 0 24px rgba(119, 165, 255, 0.10),
-      0 12px 32px rgba(0, 0, 0, 0.20);
+  .topbar {
+    margin-left: -11px;
+    margin-right: -11px;
+    padding-left: 11px;
+    padding-right: 11px;
   }
 
-  100% {
-    transform: translateY(0);
-    box-shadow:
-      0 0 0 rgba(119, 165, 255, 0),
-      0 0 0 rgba(0, 0, 0, 0);
+  .live-indicator {
+    display: none;
   }
-}
 
-/* Don't fight the hover animation */
-.connection-card:hover.measurement-pulse {
-  animation: signalx-measurement-pulse 0.35s ease-out;
-}
+  .connection-details {
+    gap: 5px;
+  }
 
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .connection-card.measurement-pulse {
-    animation: none;
+  .metric-card {
+    padding: 11px;
+  }
+
+  .mobile-bottom-nav {
+    left: 7px;
+    right: 7px;
   }
 }
 
 /* =========================================================
-   SIGNAL-X — FINAL MICRO INTERACTIONS
-   ========================================================= */
+   MOBILE DASHBOARD — PHASE 1.2
+   Presentation only. Existing data and desktop layout are unchanged.
+========================================================= */
+@media (max-width: 600px) {
+  .main {
+    padding: 14px 12px 88px;
+  }
 
-.nav-item svg,
-.icon-button svg,
-button svg {
-  transition:
-    transform 0.2s ease,
-    opacity 0.2s ease;
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    margin: -14px -12px 14px;
+    padding: 13px 12px 12px;
+    background: rgba(11, 15, 22, 0.94);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(39, 49, 66, 0.55);
+  }
+
+  .topbar h2 {
+    font-size: 20px;
+    line-height: 1.15;
+    margin: 0;
+  }
+
+  .topbar p {
+    font-size: 11px;
+    margin-top: 4px;
+  }
+
+  .topbar-actions {
+    gap: 7px;
+  }
+
+  .live-indicator {
+    font-size: 9px;
+    padding: 6px 8px;
+    white-space: nowrap;
+  }
+
+  .icon-button {
+    width: 32px;
+    height: 32px;
+  }
+
+  .hero-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .connection-card,
+  .health-card,
+  .chart-placeholder,
+  .info-card {
+    border-radius: 16px;
+  }
+
+  .connection-card {
+    padding: 18px;
+  }
+
+  .connection-card .card-header h3,
+  .health-card .card-header h3,
+  .chart-placeholder .card-header h3,
+  .info-card .card-header h3 {
+    font-size: 15px;
+  }
+
+  .eyebrow {
+    font-size: 9px;
+    letter-spacing: 0.09em;
+  }
+
+  .wifi-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+  }
+
+  .signal-main {
+    margin-top: 15px;
+  }
+
+  .rssi {
+    font-size: 58px;
+    line-height: 0.95;
+    letter-spacing: -2px;
+  }
+
+  .dbm {
+    font-size: 13px;
+    margin-left: 5px;
+  }
+
+  .signal-label {
+    display: inline-block;
+    margin-top: 7px;
+    font-size: 12px;
+  }
+
+  .connection-details {
+    display: grid;
+    grid-template-columns: 1.35fr 0.8fr 0.65fr;
+    gap: 8px;
+    margin-top: 17px;
+  }
+
+  .connection-details > div {
+    min-width: 0;
+    padding: 10px 9px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid rgba(39, 49, 66, 0.55);
+  }
+
+  .connection-details span,
+  .details-list span {
+    font-size: 9px;
+  }
+
+  .connection-details strong {
+    display: block;
+    overflow: hidden;
+    margin-top: 4px;
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .health-card {
+    padding: 16px;
+  }
+
+  .health-score {
+    gap: 15px;
+    margin-top: 13px;
+  }
+
+  .health-ring {
+    width: 82px;
+    height: 82px;
+    flex: 0 0 82px;
+  }
+
+  .health-ring strong {
+    font-size: 18px;
+  }
+
+  .health-ring span {
+    font-size: 9px;
+  }
+
+  .health-info strong {
+    font-size: 15px;
+  }
+
+  .health-info p {
+    font-size: 10px;
+    line-height: 1.45;
+    margin-top: 4px;
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+    margin-top: 10px;
+  }
+
+  .metric-card {
+    min-width: 0;
+    min-height: 72px;
+    padding: 12px;
+    border-radius: 14px;
+    gap: 9px;
+  }
+
+  .metric-icon {
+    width: 31px;
+    height: 31px;
+    min-width: 31px;
+    border-radius: 9px;
+  }
+
+  .metric-card span {
+    display: block;
+    font-size: 9px;
+    line-height: 1.2;
+  }
+
+  .metric-card strong {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    margin-top: 4px;
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .chart-placeholder {
+    margin-top: 10px;
+    padding: 15px;
+  }
+
+  .chart-status {
+    font-size: 8px;
+    white-space: nowrap;
+  }
+
+  .signal-chart {
+    height: 225px;
+    margin-top: 10px;
+    margin-left: -5px;
+    width: calc(100% + 10px);
+  }
+
+  .signal-chart canvas {
+    max-width: 100%;
+  }
+
+  .empty-chart {
+    min-height: 190px;
+  }
+
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .info-card {
+    padding: 15px;
+  }
+
+  .details-list {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .details-list > div {
+    min-width: 0;
+    padding: 9px;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.025);
+  }
+
+  .details-list strong {
+    display: block;
+    overflow: hidden;
+    margin-top: 4px;
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .system-status {
+    margin-top: 8px;
+  }
+
+  .system-row {
+    min-height: 31px;
+    font-size: 11px;
+  }
+
+  .system-row b {
+    font-size: 10px;
+  }
+
+  .mobile-bottom-nav {
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+  }
 }
 
-/* Sidebar icon movement */
-.nav-item:hover svg {
-  transform: translateX(2px);
+@media (max-width: 380px) {
+  .main {
+    padding-left: 9px;
+    padding-right: 9px;
+  }
+
+  .topbar {
+    margin-left: -9px;
+    margin-right: -9px;
+    padding-left: 9px;
+    padding-right: 9px;
+  }
+
+  .live-indicator {
+    font-size: 0;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .live-indicator span {
+    margin: 0;
+  }
+
+  .connection-card {
+    padding: 15px;
+  }
+
+  .rssi {
+    font-size: 52px;
+  }
+
+  .connection-details {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .connection-details > div:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .signal-chart {
+    height: 205px;
+  }
 }
 
-/* Button icon movement */
-button:hover:not(:disabled) svg {
-  transform: translateX(1px);
+/* =========================================================
+   MOBILE BOTTOM NAV — FIXED VIEWPORT WIDTH
+   Keeps navigation independent from long Coverage content.
+========================================================= */
+@media (max-width: 600px) {
+  .mobile-bottom-nav {
+    position: fixed;
+    left: 10px;
+    right: auto;
+    width: calc(100vw - 20px);
+    max-width: calc(100vw - 20px);
+    box-sizing: border-box;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    z-index: 1000;
+    contain: layout paint;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
 }
 
-/* Refresh / reload icons */
-button:hover:not(:disabled) svg[data-lucide="refresh-cw"] {
-  transform: rotate(90deg);
-}
-
-/* Icons return smoothly */
-button:active:not(:disabled) svg,
-.nav-item:active svg {
-  transform: scale(0.94);
-}
-
-/* Subtle button hover depth */
-button:hover:not(:disabled) {
-  box-shadow:
-    0 5px 16px rgba(0, 0, 0, 0.12);
-}
-
-/* Don't interfere with disabled buttons */
-button:disabled svg {
-  transform: none;
-  opacity: 0.6;
-}
-
-/* Accessibility */
-@media (prefers-reduced-motion: reduce) {
-  .nav-item svg,
-  .icon-button svg,
-  button svg {
-    transition: none !important;
-    transform: none !important;
+@media (max-width: 380px) {
+  .mobile-bottom-nav {
+    left: 7px;
+    right: auto;
+    width: calc(100vw - 14px);
+    max-width: calc(100vw - 14px);
   }
 }

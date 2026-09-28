@@ -67,3 +67,7 @@ Thumbs.db
 # =========================================================
 
 *.log
+
+# Android signing credentials
+frontend/android/keystore.properties
+frontend/android/*.keystore

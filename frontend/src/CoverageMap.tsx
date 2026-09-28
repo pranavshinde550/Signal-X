@@ -1,16 +1,10 @@
-import {
-  MapContainer,
-  TileLayer,
-  CircleMarker,
-  Popup,
-  useMap,
-} from "react-leaflet";
-import L from "leaflet";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { CircleMarker, MapContainer, Popup, TileLayer, useMap } from "react-leaflet";
 import { heatLayer } from "@linkurious/leaflet-heat";
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-type CoverageMeasurement = {
+export type CoverageMeasurement = {
   timestamp: string;
   ssid: string | null;
   bssid: string | null;
@@ -29,104 +23,62 @@ type CoverageMapProps = {
   measurements: CoverageMeasurement[];
 };
 
-/*
- * Automatically fits the map to all valid GPS points.
- */
-function MapUpdater({
-  measurements,
-}: {
-  measurements: CoverageMeasurement[];
-}) {
+function getMarkerColor(rssi: number | null) {
+  if (rssi == null) return "#8b93a7";
+  if (rssi >= -50) return "#35d49a";
+  if (rssi >= -60) return "#8bd450";
+  if (rssi >= -70) return "#e7bd45";
+  if (rssi >= -80) return "#ed8b45";
+  return "#ef6262";
+}
+
+function getHeatIntensity(rssi: number | null) {
+  if (rssi == null) return 0.05;
+  if (rssi >= -50) return 1;
+  if (rssi >= -60) return 0.8;
+  if (rssi >= -70) return 0.6;
+  if (rssi >= -80) return 0.3;
+  if (rssi >= -90) return 0.1;
+  return 0.05;
+}
+
+function MapUpdater({ points }: { points: [number, number][] }) {
   const map = useMap();
 
   useEffect(() => {
-    const validPoints = measurements.filter(
-      (point) =>
-        typeof point.latitude === "number" &&
-        typeof point.longitude === "number"
-    );
+    if (points.length === 0) return;
 
-    if (validPoints.length === 0) {
+    if (points.length === 1) {
+      map.setView(points[0], 18);
       return;
     }
 
-    const bounds = L.latLngBounds(
-      validPoints.map((point) => [
-        point.latitude as number,
-        point.longitude as number,
-      ])
-    );
-
-    map.fitBounds(bounds, {
+    map.fitBounds(L.latLngBounds(points), {
       padding: [40, 40],
-      maxZoom: 18,
+      maxZoom: 19,
     });
-  }, [measurements, map]);
+  }, [map, points]);
 
   return null;
 }
 
-/*
- * Convert RSSI to heatmap intensity.
- */
-function getHeatIntensity(rssi: number | null) {
-  if (rssi === null) {
-    return 0.05;
-  }
-
-  if (rssi >= -50) {
-    return 1.0;
-  }
-
-  if (rssi >= -60) {
-    return 0.8;
-  }
-
-  if (rssi >= -70) {
-    return 0.6;
-  }
-
-  if (rssi >= -80) {
-    return 0.3;
-  }
-
-  if (rssi >= -90) {
-    return 0.1;
-  }
-
-  return 0.05;
-}
-
-/*
- * Real RSSI heatmap.
- */
-function RSSIHeatmap({
-  measurements,
+function CoverageHeatLayer({
+  points,
 }: {
-  measurements: CoverageMeasurement[];
+  points: [number, number, number][];
 }) {
   const map = useMap();
+  const layerRef = useRef<L.Layer | null>(null);
 
   useEffect(() => {
-    const validPoints: Array<[number, number, number]> =
-      measurements
-        .filter(
-          (point) =>
-            typeof point.latitude === "number" &&
-            typeof point.longitude === "number" &&
-            typeof point.rssi_dbm === "number"
-        )
-        .map((point) => [
-          point.latitude as number,
-          point.longitude as number,
-          getHeatIntensity(point.rssi_dbm),
-        ]);
-
-    if (validPoints.length === 0) {
-      return;
+    if (layerRef.current) {
+      map.removeLayer(layerRef.current);
+      layerRef.current = null;
     }
 
-    const layer = heatLayer(validPoints, {
+    if (points.length === 0) return;
+
+    const layer = heatLayer(points, {
       radius: 35,
       blur: 25,
       maxZoom: 20,
@@ -142,327 +94,135 @@ function RSSIHeatmap({
     });
 
     layer.addTo(map);
+    layerRef.current = layer;
 
     return () => {
-      map.removeLayer(layer);
+      if (layerRef.current) {
+        map.removeLayer(layerRef.current);
+        layerRef.current = null;
+      }
     };
-  }, [measurements, map]);
+  }, [map, points]);
 
   return null;
 }
 
-/*
- * Individual marker color based on RSSI.
- */
-function getSignalColor(rssi: number | null) {
-  if (rssi === null) return "#8b93a7";
-
-  if (rssi >= -50) return "#35d49a";
-
-  if (rssi >= -60) return "#8bd450";
-
-  if (rssi >= -70) return "#e7bd45";
-
-  if (rssi >= -80) return "#ed8b45";
-
-  return "#ef6262";
-}
-
-/*
- * Human-readable signal quality.
- */
-function getSignalLabel(rssi: number | null) {
-  if (rssi === null) return "Unknown";
-
-  if (rssi >= -50) return "Excellent";
-
-  if (rssi >= -60) return "Good";
-
-  if (rssi >= -70) return "Fair";
-
-  if (rssi >= -80) return "Weak";
-
-  return "Very Weak";
-}
-
-/*
- * RSSI legend displayed inside the map.
- */
-function SignalLegend() {
-  return (
-    <div
-      style={{
-        position: "absolute",
-        zIndex: 1000,
-        left: "12px",
-        bottom: "12px",
-        background: "rgba(15, 18, 25, 0.92)",
-        border: "1px solid rgba(255, 255, 255, 0.12)",
-        borderRadius: "10px",
-        padding: "12px 14px",
-        minWidth: "190px",
-        boxShadow: "0 4px 16px rgba(0, 0, 0, 0.35)",
-        color: "#e8ebf2",
-        fontSize: "12px",
-        backdropFilter: "blur(8px)",
-      }}
-    >
-      <div
-        style={{
-          fontSize: "11px",
-          fontWeight: 700,
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
-          marginBottom: "9px",
-          color: "#aeb4c4",
-        }}
-      >
-        Signal Strength
-      </div>
-
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "7px",
-        }}
-      >
-        <LegendRow
-          color="#35d49a"
-          label="≥ -50 dBm"
-          quality="Excellent"
-        />
-
-        <LegendRow
-          color="#8bd450"
-          label="-50 to -60 dBm"
-          quality="Good"
-        />
-
-        <LegendRow
-          color="#e7bd45"
-          label="-60 to -70 dBm"
-          quality="Fair"
-        />
-
-        <LegendRow
-          color="#ed8b45"
-          label="-70 to -80 dBm"
-          quality="Weak"
-        />
-
-        <LegendRow
-          color="#ef6262"
-          label="< -80 dBm"
-          quality="Very Weak"
-        />
-      </div>
-    </div>
-  );
-}
-
-/*
- * Single legend row.
- */
-function LegendRow({
-  color,
-  label,
-  quality,
-}: {
-  color: string;
-  label: string;
-  quality: string;
-}) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-      }}
-    >
-      <span
-        style={{
-          width: "11px",
-          height: "11px",
-          borderRadius: "50%",
-          background: color,
-          display: "inline-block",
-          flexShrink: 0,
-          boxShadow: `0 0 7px ${color}`,
-        }}
-      />
-
-      <span
-        style={{
-          color: "#d9dde7",
-          minWidth: "78px",
-        }}
-      >
-        {label}
-      </span>
-
-      <span
-        style={{
-          color: "#8f96a8",
-        }}
-      >
-        {quality}
-      </span>
-    </div>
-  );
-}
-
-function CoverageMap({
-  measurements,
-}: CoverageMapProps) {
-  /*
-   * Only measurements containing real GPS
-   * coordinates are displayed.
-   */
-  const validPoints = measurements.filter(
+function CoverageMap({ measurements }: CoverageMapProps) {
+  const validMeasurements = measurements.filter(
     (point) =>
       typeof point.latitude === "number" &&
       typeof point.longitude === "number"
   );
 
-  /*
-   * Existing empty state.
-   */
-  if (validPoints.length === 0) {
-    return (
-      <div className="coverage-empty">
-        <h3>No location measurements yet</h3>
+  const points: [number, number][] = validMeasurements.map((point) => [
+    point.latitude as number,
+    point.longitude as number,
+  ]);
 
-        <p>
-          Collect a coverage point to display it on
-          the map.
-        </p>
-      </div>
-    );
-  }
+  const heatPoints: [number, number, number][] = validMeasurements.map(
+    (point) => [
+      point.latitude as number,
+      point.longitude as number,
+      getHeatIntensity(point.rssi_dbm),
+    ]
+  );
 
-  const firstPoint = validPoints[0];
+  const latestTimestamp =
+    validMeasurements.length > 0
+      ? validMeasurements[validMeasurements.length - 1].timestamp
+      : null;
+
+  const center: [number, number] =
+    points.length > 0 ? points[points.length - 1] : [20.5937, 78.9629];
 
   return (
-    <div
-      style={{
-        width: "100%",
-        height: "520px",
-        overflow: "hidden",
-        borderRadius: "10px",
-        position: "relative",
-      }}
-    >
-      <MapContainer
-        center={[
-          firstPoint.latitude as number,
-          firstPoint.longitude as number,
-        ]}
-        zoom={18}
-        scrollWheelZoom={true}
-        style={{
-          width: "100%",
-          height: "100%",
-        }}
-      >
-        <TileLayer
-          attribution="&copy; OpenStreetMap contributors"
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+    <div className="coverage-map">
+      {validMeasurements.length === 0 ? (
+        <div className="coverage-map-empty">
+          <div>
+            <strong>No GPS measurements yet</strong>
+            <span>Collect a point or start a survey to build the coverage map.</span>
+          </div>
+        </div>
+      ) : (
+        <>
+          <MapContainer
+            center={center}
+            zoom={18}
+            scrollWheelZoom={true}
+            style={{ width: "100%", height: "520px" }}
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
 
-        <MapUpdater measurements={measurements} />
+            <MapUpdater points={points} />
+            <CoverageHeatLayer points={heatPoints} />
 
-        <RSSIHeatmap measurements={measurements} />
+            {validMeasurements.map((point, index) => {
+              const latitude = point.latitude as number;
+              const longitude = point.longitude as number;
+              const isLatest =
+                latestTimestamp === point.timestamp &&
+                index === validMeasurements.length - 1;
+              const color = getMarkerColor(point.rssi_dbm);
 
-        {/* Individual measurement points */}
-        {validPoints.map((point, index) => {
-          const color = getSignalColor(
-            point.rssi_dbm
-          );
+              return (
+                <CircleMarker
+                  key={`${point.timestamp}-${index}`}
+                  center={[latitude, longitude]}
+                  radius={isLatest ? 8 : 6}
+                  pathOptions={{
+                    color,
+                    fillColor: color,
+                    fillOpacity: 0.9,
+                    weight: isLatest ? 3 : 2,
+                  }}
+                >
+                  <Popup>
+                    <strong>Wi-Fi Measurement</strong>
+                    <br />
+                    RSSI: {point.rssi_dbm ?? "--"} dBm
+                    <br />
+                    Signal: {point.signal_percent ?? "--"}%
+                    <br />
+                    Quality: {getQuality(point.rssi_dbm)}
+                    <br />
+                    Channel: {point.channel ?? "--"}
+                    <br />
+                    Band: {point.band ?? "--"}
+                    <br />
+                    GPS accuracy: {point.accuracy_m != null ? `${point.accuracy_m.toFixed(1)} m` : "--"}
+                    <br />
+                    Time: {new Date(point.timestamp).toLocaleString()}
+                  </Popup>
+                </CircleMarker>
+              );
+            })}
+          </MapContainer>
 
-          return (
-            <CircleMarker
-              key={`${point.timestamp}-${index}`}
-              center={[
-                point.latitude as number,
-                point.longitude as number,
-              ]}
-              radius={9}
-              pathOptions={{
-                color: color,
-                fillColor: color,
-                fillOpacity: 0.7,
-                weight: 2,
-
-                /*
-                 * CSS animation hook.
-                 */
-                className: "coverage-map-marker",
-              }}
-            >
-              <Popup>
-                <div style={{ minWidth: "170px" }}>
-                  <strong>
-                    Coverage Point #{index + 1}
-                  </strong>
-
-                  <div
-                    style={{
-                      marginTop: "8px",
-                    }}
-                  >
-                    <b>RSSI:</b>{" "}
-                    {point.rssi_dbm ?? "--"} dBm
-                  </div>
-
-                  <div>
-                    <b>Signal:</b>{" "}
-                    {point.signal_percent ?? "--"}%
-                  </div>
-
-                  <div>
-                    <b>Quality:</b>{" "}
-                    {getSignalLabel(
-                      point.rssi_dbm
-                    )}
-                  </div>
-
-                  <div>
-                    <b>Channel:</b>{" "}
-                    {point.channel ?? "--"}
-                  </div>
-
-                  <div>
-                    <b>Band:</b>{" "}
-                    {point.band ?? "--"}
-                  </div>
-
-                  <div>
-                    <b>Accuracy:</b>{" "}
-                    {point.accuracy_m != null
-                      ? `${point.accuracy_m.toFixed(
-                          1
-                        )} m`
-                      : "--"}
-                  </div>
-
-                  <div>
-                    <b>Time:</b>{" "}
-                    {new Date(
-                      point.timestamp
-                    ).toLocaleTimeString()}
-                  </div>
-                </div>
-              </Popup>
-            </CircleMarker>
-          );
-        })}
-      </MapContainer>
-
-      <SignalLegend />
+          <div className="coverage-map-legend">
+            <div className="coverage-legend-title">Signal</div>
+            <div><span style={{ background: "#35d49a" }} /> Excellent ≥ -50 dBm</div>
+            <div><span style={{ background: "#8bd450" }} /> Good -50 to -60 dBm</div>
+            <div><span style={{ background: "#e7bd45" }} /> Fair -60 to -70 dBm</div>
+            <div><span style={{ background: "#ed8b45" }} /> Weak -70 to -80 dBm</div>
+            <div><span style={{ background: "#ef6262" }} /> Very Weak &lt; -80 dBm</div>
+          </div>
+        </>
+      )}
     </div>
   );
+}
+
+function getQuality(rssi: number | null) {
+  if (rssi == null) return "Unknown";
+  if (rssi >= -50) return "Excellent";
+  if (rssi >= -60) return "Good";
+  if (rssi >= -70) return "Fair";
+  if (rssi >= -80) return "Weak";
+  return "Very Weak";
 }
 
 export default CoverageMap;

@@ -14,6 +14,8 @@ import {
   Wifi,
 } from "lucide-react";
 import ReactECharts from "echarts-for-react";
+import { Capacitor } from "@capacitor/core";
+import { WifiInfo } from "./nativeWifi";
 import NetworksPage from "./NetworksPage";
 import "./App.css";
 import { SIGNALX_WS_URL } from "./signalxConfig";
@@ -80,6 +82,11 @@ export default function App() {
   const animationFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
+    if (Capacitor.getPlatform() === "android") {
+      setSocketState("connected");
+      return;
+    }
+
     let ws: WebSocket | null = null;
     let retry: number | undefined;
     let stopped = false;
@@ -159,6 +166,92 @@ export default function App() {
       }
 
       ws?.close();
+    };
+  }, []);
+
+  /*
+   * Android native Wi-Fi monitoring.
+   *
+   * Windows keeps using the existing WebSocket backend.
+   * Android reads the phone's Wi-Fi adapter directly through
+   * the Capacitor native plugin.
+   */
+  useEffect(() => {
+    if (Capacitor.getPlatform() !== "android") {
+      return;
+    }
+
+    let stopped = false;
+
+    const readWifi = async () => {
+      try {
+        const nativeWifi = await WifiInfo.getCurrentWifi();
+
+        if (stopped) return;
+
+        const nextWifi: WifiData = {
+          connected: nativeWifi.connected,
+          ssid: nativeWifi.ssid ?? null,
+          bssid: nativeWifi.bssid ?? null,
+          signal_percent: nativeWifi.signal_percent ?? null,
+          rssi_dbm: nativeWifi.rssi_dbm ?? null,
+          band: nativeWifi.band ?? null,
+          channel: nativeWifi.channel ?? null,
+          radio_type: nativeWifi.radio_type ?? null,
+          receive_rate_mbps:
+            typeof nativeWifi.receive_rate_mbps === "number"
+              ? nativeWifi.receive_rate_mbps
+              : null,
+          transmit_rate_mbps:
+            typeof nativeWifi.transmit_rate_mbps === "number"
+              ? nativeWifi.transmit_rate_mbps
+              : null,
+          authentication: nativeWifi.authentication ?? null,
+          cipher: nativeWifi.cipher ?? null,
+        };
+
+        setWifi(nextWifi);
+        setMeasurementPulse(true);
+        window.setTimeout(() => {
+          if (!stopped) {
+            setMeasurementPulse(false);
+          }
+        }, 350);
+
+        const time = new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
+
+        setLastUpdate(time);
+
+        if (typeof nextWifi.rssi_dbm === "number") {
+          setHistory((old) => [
+            ...old,
+            {
+              time,
+              rssi: nextWifi.rssi_dbm as number,
+            },
+          ].slice(-60));
+        }
+      } catch (error) {
+        if (!stopped) {
+          console.error(
+            "Signal-X: Android Wi-Fi read failed",
+            error
+          );
+          setSocketState("disconnected");
+        }
+      }
+    };
+
+    readWifi();
+    const timer = window.setInterval(readWifi, 1000);
+
+    return () => {
+      stopped = true;
+      window.clearInterval(timer);
     };
   }, []);
 
@@ -801,6 +894,28 @@ export default function App() {
             </section>
           )}
       </main>
+
+      <nav
+        className="mobile-bottom-nav"
+        aria-label="Mobile Signal-X navigation"
+      >
+        {navigation
+          .filter((item) =>
+            ["dashboard", "networks", "performance", "coverage"].includes(item.id)
+          )
+          .map(({ id, label, Icon }) => (
+            <button
+              key={id}
+              type="button"
+              className={`mobile-nav-item ${page === id ? "active" : ""}`}
+              onClick={() => setPage(id)}
+              aria-label={label}
+            >
+              <Icon size={20} />
+              <span>{id === "dashboard" ? "Home" : label === "Performance" ? "Performance" : label}</span>
+            </button>
+          ))}
+      </nav>
     </div>
   );
 }
